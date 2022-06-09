@@ -1,6 +1,6 @@
 import time
 from selenium import webdriver
-from webdriver_manager.microsoft import EdgeChromiumDriverManager
+from msedge.selenium_tools import EdgeOptions, Edge
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
@@ -27,8 +27,8 @@ def switch(comando):
         return validador
 
 
-def loopMensagens(mensagem, numeroMensagens, driver):
-    campo_mensagem = driver.find_elements(By.XPATH, '//div[contains(@class,"copyable-text selectable-text")]')
+def loopMensagens(mensagem, numeroMensagens, browser):
+    campo_mensagem = browser.find_elements(By.XPATH, '//div[contains(@class,"copyable-text selectable-text")]')
     campo_mensagem[1].click()
     for i in range(int(numeroMensagens) - 1):
         campo_mensagem[1].send_keys(mensagem)
@@ -36,24 +36,32 @@ def loopMensagens(mensagem, numeroMensagens, driver):
 
 
 def mensagemFunction(numero, mensagem, numeroMensagens):
-    driver = webdriver.Edge(EdgeChromiumDriverManager().install())
-    driver.get('https://web.whatsapp.com/')
+    options = EdgeOptions()
+    options.use_chromium = True
+    options.binary_location = r"/usr/bin/microsoft-edge"
+    options.set_capability("platform", "LINUX")
+
+    webdriver_path = r"/home/gummart/webdrivers/msedgedriver"
+
+    browser = Edge(options=options, executable_path=webdriver_path)
+    browser.get('https://web.whatsapp.com/')
     campo_pesquisa = True
 
     while campo_pesquisa:
-        campo_pesquisa = procuraCampo(driver)
+        campo_pesquisa = procuraCampo(browser)
     time.sleep(5)
-    campo = driver.find_element(By.XPATH, '//div[contains(@class,"copyable-text selectable-text")]')
+    campo = browser.find_element(By.XPATH, '//div[contains(@class,"copyable-text selectable-text")]')
     campo.click()
     campo.send_keys(numero)
     campo.send_keys(Keys.ENTER)
     time.sleep(5)
-    loopMensagens(mensagem, numeroMensagens, driver)
+    loopMensagens(mensagem, numeroMensagens, browser)
     time.sleep(5)
+    browser.quit()
 
 
-def procuraCampo(driver):
-    elements = driver.find_elements(By.XPATH, '//div[contains(@class,"copyable-text selectable-text")]')
+def procuraCampo(browser):
+    elements = browser.find_elements(By.XPATH, '//div[contains(@class,"copyable-text selectable-text")]')
     element = False
 
     if not elements:
