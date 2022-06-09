@@ -1,0 +1,5 @@
+# Default ignored files
+/.idea/
+/build/
+/dist/
+__pycache__/functions.cpython-38.pyc
